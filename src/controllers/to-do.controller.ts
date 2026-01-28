@@ -1,16 +1,16 @@
 import { Request, Response } from 'express';
-import { ToDo } from '../models/to-do.model';
-import { error } from 'console';
+import { Todo } from '../models/to-do.model';
 
 export const all = async (req: Request, res: Response) => {
-    //Usand o o model ToDo para buscar todas as tarefas no banco de dados
-    const list = await ToDo.findAll();
+    //Usand o o model Todo para buscar todas as tarefas no banco de dados
+    const list = await Todo.findAll();
     res.json({ list });
 }
 export const add = async (req: Request, res: Response) => {
     if(req.body.title) {
-        let newTask = await ToDo.create({
+        let newTask = await Todo.create({
             title: req.body.title,
+            description: req.body.description,
             //se o valor enviado for "true", atribui true, senão atribui false a done
             done: req.body.done === "true" ? true : false
         });
@@ -20,8 +20,42 @@ export const add = async (req: Request, res: Response) => {
     }
 }
 export const update = async (req: Request, res: Response) => {
-    //Lógica para atualizar uma tarefa existente
+    const id: string = req.params.id;
+    let task = await Todo.findByPk(id);
+
+    if(task) {
+        if(req.body.title) {
+            task.title = req.body.title;
+        }
+        if(req.body.description) {
+            task.description = req.body.description;
+        }
+        if(req.body.done !== undefined) {
+            switch(req.body.done.toLowerCase()) {
+                case "true":
+                case "1":
+                    task.done = true;
+                    break;
+                case "false":
+                case "0":
+                    task.done = false;
+                    break;
+            }
+        }
+        await task.save();
+        res.json({ message: "Tarefa atualizada!", item: task });
+    }else{
+        res.json({ error: 'Tarefa não encontrada' });
+    }
 }
+
 export const remove = async (req: Request, res: Response) => {
-    //Lógica para deletar uma tarefa existente
+    const id: string = req.params.id;
+    let task = await Todo.findByPk(id);
+    if(task) {
+        await task.destroy();
+        res.json({ message: 'Tarefa deletada com sucesso!' });
+    }else{
+        res.json({ error: 'Tarefa não encontrada' });
+    }
 }

@@ -2,13 +2,14 @@ import { Model, DataTypes } from 'sequelize';
 import { sequelize } from '../instances/pg'
 
 //Tipando o model e extendendo a classe Model do sequelize
-export interface ToDoInstance extends Model {
+export interface TodoInstance extends Model {
     id: number;
+    description: Text;
     title: string;
     done: boolean;
 }
 //Definindo o model e suas propriedades
-export const ToDo = sequelize.define<ToDoInstance>('ToDo', {
+export const Todo = sequelize.define<TodoInstance>('Todo', {
     id: {
         primaryKey: true,
         autoIncrement: true,
@@ -17,11 +18,15 @@ export const ToDo = sequelize.define<ToDoInstance>('ToDo', {
     title: {
         type: DataTypes.STRING,
     },
+    description: {
+        type: DataTypes.TEXT,
+        allowNull: true
+    },
     done: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
     }
 }, {
-    tableName: 'to-dos',
+    tableName: 'todos',
     timestamps: false
 });
